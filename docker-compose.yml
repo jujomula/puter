@@ -31,7 +31,7 @@ services:
   valkey:
     image: valkey/valkey:8-alpine
     container_name: puter-valkey
-    restart: unless-stopped
+    restart: always
     # Run as a single-node cluster so Puter's ioredis Cluster client
     # (the only mode it speaks) can connect. On first boot we assign all
     # 16384 slots to ourselves; subsequent boots find them already in
@@ -74,7 +74,7 @@ services:
   mariadb:
     image: mariadb:11
     container_name: puter-mariadb
-    restart: unless-stopped
+    restart: always
     environment:
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-root-change-me}
       MARIADB_DATABASE: ${MARIADB_DATABASE:-puter}
@@ -96,7 +96,7 @@ services:
     # (config.dynamo.bootstrapTables = true does the work).
     image: amazon/dynamodb-local:latest
     container_name: puter-dynamo
-    restart: unless-stopped
+    restart: always
     user: "1000:1000"
     working_dir: /home/dynamodblocal
     command:
@@ -113,7 +113,7 @@ services:
     # MinIO (image: minio/minio, command: ["server", "/data", "--console-address", ":9001"]).
     image: rustfs/rustfs:latest
     container_name: puter-s3
-    restart: unless-stopped
+    restart: always
     environment:
       RUSTFS_ACCESS_KEY: ${S3_ACCESS_KEY:-puter}
       RUSTFS_SECRET_KEY: ${S3_SECRET_KEY:-puter-secret-change-me}
@@ -204,7 +204,7 @@ services:
     # MB RAM) is the cheapest sane default. Swap via OLLAMA_DEFAULT_MODEL.
     image: ollama/ollama:latest
     container_name: puter-ollama
-    restart: unless-stopped
+    restart: always
     volumes:
       - ./puter/data/ollama:/root/.ollama:z
     # Uncomment to expose Ollama directly on the host (`localhost:11434`)
@@ -255,7 +255,7 @@ services:
     # For local builds, create a docker-compose.override.yml;
     # see doc/self-hosting.md#building-from-source-instead-of-pulling.
     container_name: puter
-    restart: unless-stopped
+    restart: always
     depends_on:
       valkey:
         condition: service_healthy
@@ -296,7 +296,7 @@ services:
     image: ghcr.io/heyputer/puter:main
     pull_policy: always
     container_name: puter-smtp
-    restart: unless-stopped
+    restart: always
     command: ["node", "-r", "./dist/src/backend/telemetry.js", "./dist/src/backend/smtp/index.js"]
     depends_on:
       puter:
@@ -315,7 +315,7 @@ services:
   caddy:
     image: caddy:2.11-alpine
     container_name: puter-caddy
-    restart: unless-stopped
+    restart: always
     depends_on:
       puter:
         condition: service_started
